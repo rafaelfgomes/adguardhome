@@ -1,0 +1,64 @@
+name: Build and Publish Docker Image
+
+# Define quando a automação vai rodar
+on:
+  push:
+    branches: [ "main" ] # Roda sempre que houver um novo commit na branch main
+  workflow_dispatch:     # Cria um botão no GitHub para você rodar manualmente quando quiser
+
+env:
+  REGISTRY: ghcr.io
+  # Usa o nome do seu repositório (ex: seu-usuario/meu-adguard-custom)
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    # Concede permissão para o bot do GitHub fazer o upload da imagem
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      # O QEMU é a "mágica" que permite compilar para Raspberry Pi (ARM) usando os servidores normais do GitHub
+      - name: 2. Configurar emulador QEMU (Multi-arquitetura)
+        uses: docker/setup-qemu-action@v3
+
+      - name: 3. Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Autentica no GitHub Container Registry (GHCR) usando o token automático do repositório
+      - name: 4. Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Gera automaticamente a tag "latest" e uma tag baseada no código (hash) do commit
+      - name: 5. Extrair metadados (Tags e Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+
+      # Efetivamente constrói a imagem e envia para o registro
+      - name: 6. Build e Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # Aqui definimos as arquiteturas suportadas
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Usa o cache do próprio GitHub Actions para deixar compilações futuras mais rápidas
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
