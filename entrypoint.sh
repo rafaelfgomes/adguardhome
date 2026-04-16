@@ -32,6 +32,10 @@ else
     echo ">> Configuração encontrada! Iniciando de forma segura."
     echo ">> Rebaixando privilégios para UID: $PUID e GID: $PGID"
 
+    chown -R adguard:adguard /opt/adguardhome/conf
+
+    chown -R adguard:adguard /opt/adguardhome/work
+
     # Dá permissão na porta 53 para o arquivo
     setcap 'cap_net_bind_service=+eip' /opt/AdGuardHome/AdGuardHome
 
