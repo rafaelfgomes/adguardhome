@@ -46,4 +46,4 @@ EXPOSE 53/tcp \
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Define o comando que o entrypoint vai executar
-CMD ["/opt/AdGuardHome/AdGuardHome", "-h", "0.0.0.0", "-c", "/opt/adguardhome/conf/AdGuardHome.yaml", "-w", "/opt/adguardhome/work"]
+CMD ["/opt/AdGuardHome/AdGuardHome", "--no-check-update", "-h", "0.0.0.0", "-c", "/opt/adguardhome/conf/AdGuardHome.yaml", "-w", "/opt/adguardhome/work"]
