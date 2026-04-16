@@ -14,7 +14,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
+
     # Concede permissão para o bot do GitHub fazer o upload da imagem
     permissions:
       contents: read
