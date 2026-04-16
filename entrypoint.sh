@@ -6,17 +6,15 @@ PGID=${PGID:-1000}
 
 echo ">> Configurando permissões absolutas para UID: $PUID e GID: $PGID"
 
-addgroup -g "$PGID" adguardgroup 2>/dev/null || true
+addgroup -g "$PGID" adguard 2>/dev/null || true
 
-adduser -D -H -u "$PUID" -G adguardgroup -s /bin/sh adguarduser 2>/dev/null || true
+adduser -D -H -u "$PUID" -G adguard -s /bin/sh adguard 2>/dev/null || true
 
 chmod -R -s /opt/adguardhome/conf 2>/dev/null || true
 
 chmod -R -s /opt/adguardhome/work 2>/dev/null || true
 
-chown -R ${PUID}:${PGID} /opt/adguardhome/conf
-
-chown -R ${PUID}:${PGID} /opt/adguardhome/work
+chown -R adguard:adguard /opt/adguardhome
 
 if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
     echo ">> Primeira execução detectada! Rodando como root para o Setup..."
@@ -24,11 +22,9 @@ if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
 else
     echo ">> Iniciando AdGuard Home isolado..."
 
-    chown -R ${PUID}:${PGID} /opt/adguardhome/conf
-
-    chown -R ${PUID}:${PGID} /opt/adguardhome/work
-
     setcap 'cap_net_bind_service=+eip' /opt/AdGuardHome/AdGuardHome
 
-    exec su-exec ${PUID}:${PGID} "$@"
+    chown -R adguard:adguard /opt/adguardhome
+
+    exec su-exec adguard:adguard "$@"
 fi
