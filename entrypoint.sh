@@ -1,44 +1,30 @@
 #!/bin/sh
 
 PUID=${PUID:-1000}
+
 PGID=${PGID:-1000}
 
-echo ">> Iniciando AdGuard Home com UID: $PUID e GID: $PGID"
+echo ">> Configurando permissões absolutas para UID: $PUID e GID: $PGID"
 
-addgroup -g "$PGID" adguard 2>/dev/null || true
+addgroup -g "$PGID" adguardgroup 2>/dev/null || true
 
-adduser -D -H -u "$PUID" -G adguard -s /bin/sh adguard 2>/dev/null || true
+adduser -D -H -u "$PUID" -G adguardgroup -s /bin/sh adguarduser 2>/dev/null || true
 
-chown -R adguard:adguard /opt/adguardhome/conf
+chmod -R -s /opt/adguardhome/conf 2>/dev/null || true
 
-chown -R adguard:adguard /opt/adguardhome/work
+chmod -R -s /opt/adguardhome/work 2>/dev/null || true
 
-echo ">> Iniciando a aplicação..."
+chown -R ${PUID}:${PGID} /opt/adguardhome/conf
+
+chown -R ${PUID}:${PGID} /opt/adguardhome/work
 
 if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
-    echo "================================================================="
-    echo ">> [AVISO] Primeira execução detectada!"
-    echo ">> O Wizard inicial do AdGuard Home exige root por padrão."
-    echo ">> Iniciando temporariamente como ROOT..."
-    echo ">>"
-    echo ">> O QUE VOCÊ DEVE FAZER AGORA:"
-    echo ">> 1. Acesse o navegador na porta 3000 e finalize a instalação."
-    echo ">> 2. Volte ao terminal e reinicie: docker compose restart"
-    echo "================================================================="
-
-    # Executa como root (sem su-exec) apenas nesta vez
+    echo ">> Primeira execução detectada! Rodando como root para o Setup..."
     exec "$@"
 else
-    echo ">> Configuração encontrada! Iniciando de forma segura."
-    echo ">> Rebaixando privilégios para UID: $PUID e GID: $PGID"
+    echo ">> Iniciando AdGuard Home isolado..."
 
-    chown -R adguard:adguard /opt/adguardhome/conf
-
-    chown -R adguard:adguard /opt/adguardhome/work
-
-    # Dá permissão na porta 53 para o arquivo
     setcap 'cap_net_bind_service=+eip' /opt/AdGuardHome/AdGuardHome
 
-    # Executa travado como usuário comum
-    exec su-exec adguard "$@"
+    exec su-exec ${PUID}:${PGID} "$@"
 fi
