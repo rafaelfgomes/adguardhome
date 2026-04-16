@@ -24,6 +24,10 @@ if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
 else
     echo ">> Iniciando AdGuard Home isolado..."
 
+    chown -R ${PUID}:${PGID} /opt/adguardhome/conf
+
+    chown -R ${PUID}:${PGID} /opt/adguardhome/work
+
     setcap 'cap_net_bind_service=+eip' /opt/AdGuardHome/AdGuardHome
 
     exec su-exec ${PUID}:${PGID} "$@"
