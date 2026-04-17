@@ -16,6 +16,8 @@ chmod -R -s /opt/adguardhome/work 2>/dev/null || true
 
 chown -R adguard:adguard /opt/adguardhome
 
+chmod -R 700 /opt/adguardhome
+
 if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
     echo ">> Primeira execução detectada! Rodando como root para o Setup..."
     exec "$@"
@@ -23,8 +25,6 @@ else
     echo ">> Iniciando AdGuard Home isolado..."
 
     setcap 'cap_net_bind_service=+eip' /opt/AdGuardHome/AdGuardHome
-
-    chown -R adguard:adguard /opt/adguardhome
 
     exec su-exec adguard:adguard "$@"
 fi
