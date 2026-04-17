@@ -28,7 +28,7 @@ RUN chown -R adguard:adguard /opt/adguardhome
 
 RUN chown -R adguard:adguard /opt/AdGuardHome
 
-RUN chmod -R 700 /opt/adguardhome
+RUN usermod -aG root adguard
 
 # Copia o script para dentro da imagem e dá permissão de execução
 COPY entrypoint.sh /entrypoint.sh
