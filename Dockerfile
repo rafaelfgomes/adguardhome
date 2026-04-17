@@ -11,11 +11,22 @@ ENV PUID=1000 \
     PGID=1000 \
     TZ=Etc/UTC
 
+RUN addgroup -g "$PGID" adguard 2>/dev/null || true
+
+RUN adduser -D -H -u "$PUID" -G adguard -s /bin/sh adguard 2>/dev/null || true
+
 # Cria as pastas de trabalho e baixa o AdGuard Home
 WORKDIR /opt
 
 RUN curl -sSL https://static.adguard.com/adguardhome/release/AdGuardHome_linux_amd64.tar.gz | tar -xz && \
     mkdir -p /opt/adguardhome/conf /opt/adguardhome/work
+
+RUN chmod -R -s /opt/adguardhome/conf 2>/dev/null || true && \
+    chmod -R -s /opt/adguardhome/work 2>/dev/null || true
+
+RUN chown -R adguard:adguard /opt/adguardhome
+
+RUN chmod -R 700 /opt/adguardhome
 
 # Copia o script para dentro da imagem e dá permissão de execução
 COPY entrypoint.sh /entrypoint.sh
