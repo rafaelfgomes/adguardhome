@@ -26,6 +26,8 @@ RUN chmod -R -s /opt/adguardhome/conf 2>/dev/null || true && \
 
 RUN chown -R adguard:adguard /opt/adguardhome
 
+RUN chown -R adguard:adguard /opt/AdGuardHome
+
 RUN chmod -R 700 /opt/adguardhome
 
 # Copia o script para dentro da imagem e dá permissão de execução
