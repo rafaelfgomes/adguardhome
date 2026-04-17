@@ -28,6 +28,8 @@ RUN chown -R adguard:adguard /opt/adguardhome
 
 RUN chown -R adguard:adguard /opt/AdGuardHome
 
+RUN chmod -R 770 /opt/adguardhome
+
 RUN addgroup root adguard
 
 # Copia o script para dentro da imagem e dá permissão de execução
