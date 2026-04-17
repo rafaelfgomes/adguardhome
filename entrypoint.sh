@@ -1,5 +1,7 @@
 #!/bin/sh
 
+chown -R adguard:adguard /opt/adguardhome /opt/AdGuardHome
+
 if [ ! -f "/opt/adguardhome/conf/AdGuardHome.yaml" ]; then
     echo ">> Primeira execução detectada! Rodando como root para o Setup..."
 
